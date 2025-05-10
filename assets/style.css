@@ -1,0 +1,60 @@
+html {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.4rem;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
+    color: #24292f;
+    background-color: #fdfdfd;
+  overflow:hidden; 
+}
+#page {
+  display:grid;
+  grid-template-rows: 2rem calc(100dvh - 2rem - 10px );
+  grid-template-columns: 1fr clamp(20rem, calc(100dvw - 1rem), 50rem) 1fr;
+}
+#heading svg {
+  height:100%;
+}
+#heading {
+  justify-content: center;
+  gap:7px;
+  display:flex;
+  grid-row:1;
+  grid-column:2;
+}
+#terms,#dposts {
+  overflow: auto;
+  grid-row:2;
+  grid-column:2
+}
+pre {
+  white-space: pre-wrap;
+}
+a {
+  text-decoration: none;
+}
+#l,#terms{
+  display:none;
+}
+
+  a:visited {
+    color: blue;
+    font-weight: bolder;
+  }
+
+  a:link {
+    color: blue;
+    font-weight: bolder;
+  }
+
+  a:hover {
+    color: #8ab4f8;
+  }
+
+  a:active {
+    color: purple;
+  }
+
+
