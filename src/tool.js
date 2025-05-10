@@ -81,7 +81,7 @@ if (post.length < 501) {
 const past = JSON.parse(Deno.readTextFileSync('past.json'))
 const dt = new Date();
 const tss = dt.toISOString().replaceAll(":", "").replaceAll("-", "").replaceAll(".", "");
-//past.unshift({ "ts": tss, "post": post, "nostr": state[0].envelope })
+past.unshift({ "ts": tss, "post": post, "nostr": state[0].envelope })
 Deno.writeTextFileSync('past.json', JSON.stringify(past, null, 2))
 Deno.remove('/home/divine/websites/site/sys/post.txt')
 const site = {}

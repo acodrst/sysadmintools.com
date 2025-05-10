@@ -5231,7 +5231,7 @@ function bytesToBase64(bytes) {
 
 const metadata=JSON.parse(Deno.readTextFileSync("assets/metadata.json"));
 const dt$1 = new Date();
-const tss = dt$1.toISOString().replaceAll(":", "").replaceAll("-","").replaceAll(".","");
+const tss$1 = dt$1.toISOString().replaceAll(":", "").replaceAll("-","").replaceAll(".","");
 async function create(site,backup) {
   const st = JSON.stringify(site);
   Deno.writeTextFileSync("site.txt", `let site=${st}\n`);
@@ -5249,7 +5249,7 @@ async function create(site,backup) {
   );
   if (last_hash.trim() != cur_hash.trim()) {
     Deno.writeTextFileSync("data_sha512.txt", cur_hash);
-    const fp_obj = fpng(` Verify sig at floppypng.com - ${tss}`, text);
+    const fp_obj = fpng(` Verify sig at floppypng.com - ${tss$1}`, text);
     const a32h = arr_to_hex(fp_obj.im.slice(-20, -16));
     console.log(`Generated FloppyPNG Size=${fp_obj.ln}`);
 
@@ -5281,37 +5281,37 @@ async function create(site,backup) {
       fp_obj.im,
     );
     const u8sig = new Uint8Array(sig);
-    Deno.writeFileSync(`${tss}-${a32h}.png`, fp_obj.im);
-    Deno.writeTextFileSync(`${tss}-${a32h}.txt`, bytesToBase64(u8sig));
-    Deno.writeFileSync(`${backup}${tss}-${a32h}.png`, fp_obj.im);
+    Deno.writeFileSync(`${tss$1}-${a32h}.png`, fp_obj.im);
+    Deno.writeTextFileSync(`${tss$1}-${a32h}.txt`, bytesToBase64(u8sig));
+    Deno.writeFileSync(`${backup}${tss$1}-${a32h}.png`, fp_obj.im);
     for await (const i of Deno.readDir("./")) {
       if (
-        i.name != `${tss}-${a32h}.js` &&
+        i.name != `${tss$1}-${a32h}.js` &&
         i.name.match(/^\d{8}T\d{9}Z\-\w{8}.js$/)
       ) {
         console.log(`removing ${i.name}`);
         Deno.remove(i.name);
       }
       if (
-        i.name != `${tss}-${a32h}.png` &&
+        i.name != `${tss$1}-${a32h}.png` &&
         i.name.match(/^\d{8}T\d{9}Z\-\w{8}.png$/)
       ) {
         console.log(`removing ${i.name}`);
         Deno.remove(i.name);
       }
       if (
-        i.name != `${tss}-${a32h}.txt` &&
+        i.name != `${tss$1}-${a32h}.txt` &&
         i.name.match(/^\d{8}T\d{9}Z\-\w{8}.txt$/)
       ) {
         console.log(`removing ${i.name}`);
         Deno.remove(i.name);
       }
     }
-    console.log(`${tss}-${a32h}`);
+    console.log(`${tss$1}-${a32h}`);
     Deno.writeTextFileSync(
-      `${tss}-${a32h}.js`,
+      `${tss$1}-${a32h}.js`,
       Deno.readTextFileSync(`assets/bootloader.template.js`)
-        .replaceAll("thisistss", tss)
+        .replaceAll("thisistss", tss$1)
         .replaceAll("thisisadler", a32h)
         .replaceAll("thisistextlength", st.length)
         .replaceAll("thisislength", fp_obj.ln),
@@ -5322,7 +5322,7 @@ async function create(site,backup) {
       Deno.readTextFileSync(`assets/pageops.html`)
         .replace("<title></title>",`<title>${metadata[i].title}</title>`)
         .replace(`<meta name="description" content="">`,`<meta name="description" content="${metadata[i].description}">`)
-        .replaceAll("thisistss", tss)
+        .replaceAll("thisistss", tss$1)
         .replaceAll("thisisadler", a32h)
     );
   }
@@ -60859,12 +60859,12 @@ function requireDist () {
 	return dist$5;
 }
 
-requireDist();
+var distExports = requireDist();
 
 const backup = Deno.env.get("CL_SYS_BACKUP");
 const toot = Deno.env.get("CL_TOOT");
-Deno.readTextFileSync(Deno.env.get("CL_BID")).trim();
-Deno.readTextFileSync(Deno.env.get("CL_BPASS")).trim();
+const bid = Deno.readTextFileSync(Deno.env.get("CL_BID")).trim();
+const bpass = Deno.readTextFileSync(Deno.env.get("CL_BPASS")).trim();
 const nsechex = Deno.readTextFileSync(Deno.env.get("CL_NSECHEX")).trim();
 const relays = [
   "wss://nostr.mom",
@@ -60878,7 +60878,7 @@ post.matchAll(/#\w+/gsm).forEach(j => {
   tags.push(j[0].slice(1));
 });
 
-let cmd, rep;
+let cmd, rep, out;
 if (tags.length > 0) {
   cmd = new Deno.Command("nostril", {
     args: ['--envelope', '--sec', nsechex, '--tagn', tags.length, ...tags, '--content', `${post}`]
@@ -60893,8 +60893,7 @@ rep = cmd.outputSync();
 if (post.length < 4) {
   Deno.exit();
 }
-const relays_none=[];
-for (let i in relays_none) {
+for (let i in relays) {
   state[i] = state[i] || {};
   state[i].envelope = new TextDecoder().decode(rep.stdout);
   state[i].websocket = new WebSocket(relays[i]);
@@ -60906,8 +60905,34 @@ for (let i in relays_none) {
     state[i].websocket.close();
   });
 }
-if (post.length < 501 && 6==9) ;
-if (post.length < 301 && 6==9) ;
+if (post.length < 501) {
+  cmd = new Deno.Command(toot, {
+    args: ['auth']
+  });
+  rep = cmd.outputSync();
+  out = new TextDecoder().decode(rep.stdout);
+  if (!out.includes('ACTIVE')) {
+    Deno.exit();
+  }
+}
+if (post.length < 301) {
+  const agent = new distExports.BskyAgent({
+    service: 'https://bsky.social'
+  });
+  await agent.login({
+    identifier: bid,
+    password: bpass
+  });
+  const rt = new distExports.RichText({
+    text: post
+  });
+  await rt.detectFacets(agent);
+  await agent.post({
+    text: rt.text,
+    facets: rt.facets,
+    createdAt: new Date().toISOString()
+  });
+}
 if (post.length < 501) {
   cmd = new Deno.Command(toot, {
     args: ['post', `${post}`]
@@ -60916,8 +60941,8 @@ if (post.length < 501) {
 }
 const past = JSON.parse(Deno.readTextFileSync('past.json'));
 const dt = new Date();
-dt.toISOString().replaceAll(":", "").replaceAll("-", "").replaceAll(".", "");
-//past.unshift({ "ts": tss, "post": post, "nostr": state[0].envelope })
+const tss = dt.toISOString().replaceAll(":", "").replaceAll("-", "").replaceAll(".", "");
+past.unshift({ "ts": tss, "post": post, "nostr": state[0].envelope });
 Deno.writeTextFileSync('past.json', JSON.stringify(past, null, 2));
 Deno.remove('/home/divine/websites/site/sys/post.txt');
 const site = {};
