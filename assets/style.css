@@ -9,6 +9,19 @@ html {
     background-color: #fdfdfd;
   overflow:hidden; 
 }
+#heading a:link{
+  color: yellow;
+}
+#heading a:visited{
+  color: yellow;
+}
+#heading a:hover {
+  color: black;
+}
+#heading svg:hover{
+  cursor: pointer;
+  background-color: yellow;
+}
 #page {
   display:grid;
   grid-template-rows: 2rem calc(100dvh - 2rem - 10px );
